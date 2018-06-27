@@ -26,7 +26,7 @@ class App extends Component {
     this.state = {
       todo: '',
       todos: null,
-      editable: false
+      edittext: ''
     }
   }
 
@@ -49,6 +49,11 @@ class App extends Component {
     firebase.database().ref('todos/' + key).remove()
   }
 
+  editTodo(key) {
+    this.setState({editable: true})
+    firebase.database().ref('todos/').update({[key]: this.state.edittext })
+  }
+
   render() {
     const todos = !this.state.todos ? [] : Object.keys(this.state.todos).map( key => {
       return {
@@ -64,7 +69,12 @@ class App extends Component {
           style={styles.textInput}
           underlineColorAndroid={'transparent'}
         />
-        <Button title={"add Todo"} onPress={() => this.storeTodo()}/>
+        <View style={{marginBottom: 10}}>
+          <Button
+            title={"add Todo"}
+            onPress={() => this.storeTodo()}
+          />
+        </View>
         <FlatList
           data={todos}
           renderItem={({item}) => {
@@ -72,7 +82,8 @@ class App extends Component {
               <View style={styles.todoBracket}>
                 <TextInput
                   style={{marginLeft: 0, color: 'black', flex: 1}}
-                  editable={this.state.editable}
+                  editable={true}
+                  onChangeText={(text) => this.setState({edittext: text})}
                 >
                   {item.text}
                 </TextInput>
@@ -85,7 +96,7 @@ class App extends Component {
                 <View style={{marginTop: 10, marginLeft: 10}}>
                   <Button
                     title={"edit"}
-                    onPress={() => this.removeTodo(item.key)}
+                    onPress={() => this.editTodo(item.key)}
                   />
                 </View>
               </View>
@@ -110,7 +121,8 @@ const styles = StyleSheet.create({
     width: 300,
     borderWidth: 1,
     borderColor: 'black',
-    marginTop: 20
+    marginTop: 20,
+    marginBottom: 10
   },
   todoBracket: {
     justifyContent: 'center',
@@ -118,7 +130,8 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     width: 300,
     height: 60,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 5
   }
 });
 
